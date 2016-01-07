@@ -25,11 +25,11 @@ level = {
 	fatal: '\00305',
 	debug: '\00306'
 }
-debug, color = false, true
+_debug, _color = false, true
 set_debug = (value)->
-	debug = not not value -- truthify it
+	_debug = not not value -- truthify it
 set_color = (value)->
-	color = not not value
+	_color = not not value
 
 color_to_xterm = (line)->
 	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
@@ -46,7 +46,7 @@ color_to_xterm = (line)->
 
 print = (line)->
 	local output_line
-	if color
+	if _color
 		output_line = color_to_xterm os.date('[%X]')\gsub('.', (ch)->
 			if ch\match '[%[%]:]'
 				return '\00311' .. ch .. '\003'
@@ -59,7 +59,7 @@ print = (line)->
 	_print output_line
 
 debug = (line)->
-	if debug
+	if _debug
 		print line
 
 return :set_debug, :set_color, :debug, :print, :level, :colors
