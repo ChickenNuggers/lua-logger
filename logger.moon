@@ -1,3 +1,4 @@
+_print = print
 colors = {
 	[0]:  15, -- white
 	[1]:  0,  -- black
@@ -16,33 +17,49 @@ colors = {
 	[14]: 8,  -- gray
 	[15]: 7  -- light gray
 }
-class Logger
-	level: {
-		error: '\00304',
-		reset: '\003',
-		warn:  '\00308',
-		okay:  '\00303',
-		fatal: '\00305',
-		debug: '\00306'
-	}
-	print: (line)->
-		print(line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
-			fg, bg = tonumber(fg), tonumber(bg)
-			if colors[fg] and colors[bg]
-				return '\27[38;5;' .. colors[fg] .. ';48;5;' .. colors[bg] .. 'm'
-		)\gsub('\003(%d%d?)', (fg)->
-			fg = tonumber(fg)
-			if colors[fg]
-				return '\27[38;5;' .. colors[fg] .. 'm'
-		)\gsub('\003', ()->
-			return '\27[0m'
-		) .. '\27[0m')
-	log: (line)->
-		Logger.print_bare os.date('[%X]')\gsub('.', (ch)->
+level = {
+	error: '\00304',
+	reset: '\003',
+	warn:  '\00308',
+	okay:  '\00303',
+	fatal: '\00305',
+	debug: '\00306'
+}
+debug, color = false, true
+set_debug = (value)->
+	debug = not not value -- truthify it
+set_color = (value)->
+	color = not not value
+
+color_to_xterm = (line)->
+	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
+		fg, bg = tonumber(fg), tonumber(bg)
+		if colors[fg] and colors[bg]
+			return '\27[38;5;' .. colors[fg] .. ';48;5;' .. colors[bg] .. 'm'
+	)\gsub('\003(%d%d?)', (fg)->
+		fg = tonumber(fg)
+		if colors[fg]
+			return '\27[38;5;' .. colors[fg] .. 'm'
+	)\gsub('\003', ()->
+		return '\27[0m'
+	) .. '\27[0m'
+
+print = (line)->
+	local output_line
+	if color
+		output_line = color_to_xterm os.date('[%X]')\gsub('.', (ch)->
 			if ch\match '[%[%]:]'
 				return '\00311' .. ch .. '\003'
 			else
 				return '\00315' .. ch .. '\003'
 		) .. ' ' .. line
+	else
+		output_line = os.date('[%X] ') .. line
+	
+	_print output_line
 
-return Logger
+debug = (line)->
+	if debug
+		print line
+
+return :set_debug, :set_color, :debug, :print, :level, :colors
