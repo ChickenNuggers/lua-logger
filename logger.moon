@@ -58,8 +58,10 @@ print = (line)->
 	
 	_print output_line
 
-debug = (line)->
+debug = (line, default)->
 	if _debug
 		print line
+	elseif default
+		print default
 
 return :set_debug, :set_color, :debug, :print, :level, :colors

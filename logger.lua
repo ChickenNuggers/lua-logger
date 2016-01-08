@@ -25,14 +25,14 @@ local level = {
   fatal = '\00305',
   debug = '\00306'
 }
-local debug, color = false, true
+local _debug, _color = false, true
 local set_debug
 set_debug = function(value)
-  debug = not not value
+  _debug = not not value
 end
 local set_color
 set_color = function(value)
-  color = not not value
+  _color = not not value
 end
 local color_to_xterm
 color_to_xterm = function(line)
@@ -53,7 +53,7 @@ end
 local print
 print = function(line)
   local output_line
-  if color then
+  if _color then
     output_line = color_to_xterm(os.date('[%X]'):gsub('.', function(ch)
       if ch:match('[%[%]:]') then
         return '\00311' .. ch .. '\003'
@@ -66,9 +66,12 @@ print = function(line)
   end
   return _print(output_line)
 end
-debug = function(line)
-  if debug then
+local debug
+debug = function(line, default)
+  if _debug then
     return print(line)
+  elseif default then
+    return print(default)
   end
 end
 return {
