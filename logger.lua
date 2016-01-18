@@ -37,6 +37,9 @@ set_color = function(value)
 end
 local set_pretty
 set_pretty = function(value)
+  if value == nil then
+    value = 12.5
+  end
   _print = value and (function(text)
     local sleep
     sleep = require('cqueues').sleep
@@ -47,7 +50,7 @@ set_pretty = function(value)
         is_escape_code = true
       end
       if not is_escape_code then
-        sleep(0.025)
+        sleep(value / 1000)
       end
       if is_escape_code and char:match("[a-zA-Z]") then
         is_escape_code = false
@@ -55,7 +58,7 @@ set_pretty = function(value)
       io.stdout:write(char)
     end
     io.stdout:write('\r\n')
-    return sleep(0.05)
+    return sleep(value / 500)
   end) or _oldprint
 end
 local color_to_xterm
