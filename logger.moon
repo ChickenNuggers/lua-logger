@@ -27,6 +27,12 @@ level = {
 	debug: '\00306'
 }
 _debug, _color = false, true
+
+local print
+
+public_print = (line)->
+	print line
+
 set_debug = (value)->
 	_debug = not not value -- truthify it
 set_color = (value)->
@@ -44,6 +50,10 @@ set_pretty = (value=12.5)->
 		io.stdout\write '\r\n'
 		sleep value / 500
 	) or _oldprint
+set_fifo = (fifo)->
+	public_print = (line)->
+		fifo\push(line)
+	
 
 color_to_xterm = (line)->
 	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
@@ -66,9 +76,9 @@ print = (line)->
 				return '\00311' .. ch .. '\003'
 			else
 				return '\00315' .. ch .. '\003'
-		) .. ' ' .. line
+		) .. ' ' .. tostring line
 	else
-		output_line = os.date('[%X] ') .. line
+		output_line = os.date('[%X] ') .. tostring line
 	
 	_print output_line
 
@@ -78,4 +88,4 @@ debug = (line, default)->
 	elseif default
 		print default
 
-return :set_debug, :set_color, :set_pretty, :debug, :print, :level, :colors
+return :set_debug, :set_color, :set_pretty, :set_fifo, :debug, print: public_print, :level, :colors, _print: print

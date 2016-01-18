@@ -27,6 +27,11 @@ local level = {
   debug = '\00306'
 }
 local _debug, _color = false, true
+local print
+local public_print
+public_print = function(line)
+  return print(line)
+end
 local set_debug
 set_debug = function(value)
   _debug = not not value
@@ -61,6 +66,12 @@ set_pretty = function(value)
     return sleep(value / 500)
   end) or _oldprint
 end
+local set_fifo
+set_fifo = function(fifo)
+  public_print = function(line)
+    return fifo:push(line)
+  end
+end
 local color_to_xterm
 color_to_xterm = function(line)
   return line:gsub('\003(%d%d?),(%d%d?)', function(fg, bg)
@@ -77,7 +88,6 @@ color_to_xterm = function(line)
     return '\27[0m'
   end) .. '\27[0m'
 end
-local print
 print = function(line)
   local output_line
   if _color then
@@ -87,9 +97,9 @@ print = function(line)
       else
         return '\00315' .. ch .. '\003'
       end
-    end) .. ' ' .. line)
+    end) .. ' ' .. tostring(line))
   else
-    output_line = os.date('[%X] ') .. line
+    output_line = os.date('[%X] ') .. tostring(line)
   end
   return _print(output_line)
 end
@@ -105,8 +115,10 @@ return {
   set_debug = set_debug,
   set_color = set_color,
   set_pretty = set_pretty,
+  set_fifo = set_fifo,
   debug = debug,
-  print = print,
+  print = public_print,
   level = level,
-  colors = colors
+  colors = colors,
+  _print = print
 }
