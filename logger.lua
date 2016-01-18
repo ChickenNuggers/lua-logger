@@ -1,4 +1,5 @@
 local _print = print
+local _oldprint = print
 local colors = {
   [0] = 15,
   [1] = 0,
@@ -33,6 +34,29 @@ end
 local set_color
 set_color = function(value)
   _color = not not value
+end
+local set_pretty
+set_pretty = function(value)
+  _print = value and (function(text)
+    local sleep
+    sleep = require('cqueues').sleep
+    io.stdout:setvbuf('no')
+    local is_escape_code = false
+    for char in text:gmatch('[\000-\127\194-\244][\128-\191]*') do
+      if char == '\027' then
+        is_escape_code = true
+      end
+      if not is_escape_code then
+        sleep(0.025)
+      end
+      if is_escape_code and char:match("[a-zA-Z]") then
+        is_escape_code = false
+      end
+      io.stdout:write(char)
+    end
+    io.stdout:write('\r\n')
+    return sleep(0.05)
+  end) or _oldprint
 end
 local color_to_xterm
 color_to_xterm = function(line)
@@ -77,6 +101,7 @@ end
 return {
   set_debug = set_debug,
   set_color = set_color,
+  set_pretty = set_pretty,
   debug = debug,
   print = print,
   level = level,

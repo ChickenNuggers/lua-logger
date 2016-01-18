@@ -1,4 +1,5 @@
 _print = print
+_oldprint = print
 colors = {
 	[0]:  15, -- white
 	[1]:  0,  -- black
@@ -30,6 +31,19 @@ set_debug = (value)->
 	_debug = not not value -- truthify it
 set_color = (value)->
 	_color = not not value
+set_pretty = (value)->
+	_print = value and ((text)->
+		import sleep from require 'cqueues'
+		io.stdout\setvbuf 'no'
+		is_escape_code = false
+		for char in text\gmatch('[\000-\127\194-\244][\128-\191]*')
+			is_escape_code = true if char == '\027'
+			sleep 0.025 if not is_escape_code
+			is_escape_code = false if is_escape_code and char\match "[a-zA-Z]"
+			io.stdout\write char
+		io.stdout\write '\r\n'
+		sleep 0.05
+	) or _oldprint
 
 color_to_xterm = (line)->
 	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
@@ -64,4 +78,4 @@ debug = (line, default)->
 	elseif default
 		print default
 
-return :set_debug, :set_color, :debug, :print, :level, :colors
+return :set_debug, :set_color, :set_pretty, :debug, :print, :level, :colors
