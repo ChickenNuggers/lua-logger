@@ -1,5 +1,5 @@
 package = "lua-logger"
-version = "0.1-0"
+version = "0.1-1"
 source = {
 	url = "https://github.com/ChickenNuggers/lua-logger"
 }
