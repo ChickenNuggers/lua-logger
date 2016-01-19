@@ -1,5 +1,4 @@
 local _print = print
-local _oldprint = print
 local colors = {
   [0] = 15,
   [1] = 0,
@@ -27,15 +26,6 @@ local level = {
   debug = '\00306'
 }
 local _debug, _color = false, true
-local print
-local public_print
-public_print = function(line)
-  return print(line)
-end
-local print_wrapper
-print_wrapper = function(line)
-  return public_print(line)
-end
 local set_debug
 set_debug = function(value)
   _debug = not not value
@@ -43,38 +33,6 @@ end
 local set_color
 set_color = function(value)
   _color = not not value
-end
-local set_pretty
-set_pretty = function(value)
-  if value == nil then
-    value = 12.5
-  end
-  _print = value and (function(text)
-    local sleep
-    sleep = require('cqueues').sleep
-    io.stdout:setvbuf('no')
-    local is_escape_code = false
-    for char in text:gmatch('[\000-\127\194-\244][\128-\191]*') do
-      if char == '\027' then
-        is_escape_code = true
-      end
-      if not is_escape_code then
-        sleep(value / 1000)
-      end
-      if is_escape_code and char:match("[a-zA-Z]") then
-        is_escape_code = false
-      end
-      io.stdout:write(char)
-    end
-    io.stdout:write('\r\n')
-    return sleep(value / 500)
-  end) or _oldprint
-end
-local set_fifo
-set_fifo = function(fifo)
-  public_print = function(line)
-    return fifo:push(line)
-  end
 end
 local color_to_xterm
 color_to_xterm = function(line)
@@ -92,6 +50,7 @@ color_to_xterm = function(line)
     return '\27[0m'
   end) .. '\27[0m'
 end
+local print
 print = function(line)
   local output_line
   if _color then
@@ -110,19 +69,16 @@ end
 local debug
 debug = function(line, default)
   if _debug then
-    return public_print(line)
+    return print(line)
   elseif default then
-    return public_print(default)
+    return print(default)
   end
 end
 return {
   set_debug = set_debug,
   set_color = set_color,
-  set_pretty = set_pretty,
-  set_fifo = set_fifo,
   debug = debug,
-  print = print_wrapper,
+  print = print,
   level = level,
-  colors = colors,
-  _print = print
+  colors = colors
 }

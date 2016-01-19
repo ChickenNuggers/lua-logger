@@ -1,5 +1,4 @@
 _print = print
-_oldprint = print
 colors = {
 	[0]:  15, -- white
 	[1]:  0,  -- black
@@ -28,33 +27,10 @@ level = {
 }
 _debug, _color = false, true
 
-local print
-
-public_print = (line)->
-	print line
-
-print_wrapper = (line)-> public_print line
-
 set_debug = (value)->
 	_debug = not not value -- truthify it
 set_color = (value)->
 	_color = not not value
-set_pretty = (value=12.5)->
-	_print = value and ((text)->
-		import sleep from require 'cqueues'
-		io.stdout\setvbuf 'no'
-		is_escape_code = false
-		for char in text\gmatch('[\000-\127\194-\244][\128-\191]*')
-			is_escape_code = true if char == '\027'
-			sleep value / 1000 if not is_escape_code
-			is_escape_code = false if is_escape_code and char\match "[a-zA-Z]"
-			io.stdout\write char
-		io.stdout\write '\r\n'
-		sleep value / 500
-	) or _oldprint
-set_fifo = (fifo)->
-	public_print = (line)->
-		fifo\push(line)
 
 color_to_xterm = (line)->
 	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
@@ -85,8 +61,8 @@ print = (line)->
 
 debug = (line, default)->
 	if _debug
-		public_print line
+		print line
 	elseif default
-		public_print default
+		print default
 
-return :set_debug, :set_color, :set_pretty, :set_fifo, :debug, print: print_wrapper, :level, :colors, _print: print
+return :set_debug, :set_color, :debug, :print, :level, :colors
