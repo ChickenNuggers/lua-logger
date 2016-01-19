@@ -33,6 +33,8 @@ local print
 public_print = (line)->
 	print line
 
+print_wrapper = (line)-> public_print line
+
 set_debug = (value)->
 	_debug = not not value -- truthify it
 set_color = (value)->
@@ -53,7 +55,6 @@ set_pretty = (value=12.5)->
 set_fifo = (fifo)->
 	public_print = (line)->
 		fifo\push(line)
-	
 
 color_to_xterm = (line)->
 	return line\gsub('\003(%d%d?),(%d%d?)', (fg, bg)->
@@ -84,8 +85,8 @@ print = (line)->
 
 debug = (line, default)->
 	if _debug
-		print line
+		public_print line
 	elseif default
-		print default
+		public_print default
 
-return :set_debug, :set_color, :set_pretty, :set_fifo, :debug, print: public_print, :level, :colors, _print: print
+return :set_debug, :set_color, :set_pretty, :set_fifo, :debug, print: print_wrapper, :level, :colors, _print: print

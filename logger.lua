@@ -32,6 +32,10 @@ local public_print
 public_print = function(line)
   return print(line)
 end
+local print_wrapper
+print_wrapper = function(line)
+  return public_print(line)
+end
 local set_debug
 set_debug = function(value)
   _debug = not not value
@@ -106,9 +110,9 @@ end
 local debug
 debug = function(line, default)
   if _debug then
-    return print(line)
+    return public_print(line)
   elseif default then
-    return print(default)
+    return public_print(default)
   end
 end
 return {
@@ -117,7 +121,7 @@ return {
   set_pretty = set_pretty,
   set_fifo = set_fifo,
   debug = debug,
-  print = public_print,
+  print = print_wrapper,
   level = level,
   colors = colors,
   _print = print
