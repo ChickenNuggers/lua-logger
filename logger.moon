@@ -41,9 +41,9 @@ color_to_xterm = (line)->
 		fg = tonumber(fg)
 		if colors[fg]
 			return '\27[38;5;' .. colors[fg] .. 'm'
-	)\gsub('\003', ()->
+	)\gsub('[\003\015]', ()->
 		return '\27[0m'
-	) .. '\27[0m'
+	).. '\27[0m'
 
 print = (line)->
 	local output_line

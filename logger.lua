@@ -46,7 +46,7 @@ color_to_xterm = function(line)
     if colors[fg] then
       return '\27[38;5;' .. colors[fg] .. 'm'
     end
-  end):gsub('\003', function()
+  end):gsub('[\003\015]', function()
     return '\27[0m'
   end) .. '\27[0m'
 end
