@@ -1,8 +1,8 @@
 package = "lua-logger"
 version = "0.1-4"
 source = {
-   url = "https://github.com/ChickenNuggers/lua-logger.git",
-   tag = "v0" .. version
+   url = "git://github.com/ChickenNuggers/lua-logger",
+   tag = "v" .. version
 }
 description = {
    summary = "An IRC color compatible logging library",
